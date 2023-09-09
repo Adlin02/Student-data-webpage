@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Data</title>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <h1>Form Data</h1>
+  <form>
+    <label for="name">Name:</label>
+    <output id="name"></output><br><br>
+  
+    <label for="address">Address:</label>
+    <output id="address"></output><br><br>
+  
+    <label for="rollNo">RollNo:</label>
+    <output id="rollNo"></output><br><br>
+
+    <label for="department">Department:</label>
+    <output id="department"></output><br><br>
+  </form>
+  
+  <button id="displayDataButton">Display Data</button>
+  <button id="downloadCSVButton">Download as CSV</button>
+  <input type="button" value="Display all Data" onclick="displayData();">
+
+  <div id="dataContainer"></div>
+
+  <script>
+    var params = new URLSearchParams(window.location.search);
+    document.getElementById("name").innerHTML =  params.get("name");
+    document.getElementById("address").innerHTML = params.get("address");
+    document.getElementById("rollNo").innerHTML = params.get("rollNo");
+    document.getElementById("department").innerHTML = params.get("department");
+
+    var allData = []; 
+    var storedFormDataArray = localStorage.getItem("formDataArray");
+
+if (storedFormDataArray) {
+  allData = JSON.parse(storedFormDataArray);
+  
+}
+    /*allData.push({
+      name: params.get("name"),
+      address: params.get("address"),
+      rollNo: params.get("rollNo"),
+      department: params.get("department"),
+    });*/
+
+    document.getElementById("displayDataButton").addEventListener("click", function() {
+  
+      var dataContainer = document.getElementById("dataContainer");
+      dataContainer.innerHTML = "";
+      allData.forEach(function(data) {
+        dataContainer.innerHTML += "<p>" + JSON.stringify(data) + "</p>";
+      });
+    });
+
+    document.getElementById("downloadCSVButton").addEventListener("click", function() {
+     
+      var csvContent = "data:text/csv;charset=utf-8,";
+      allData.forEach(function(data) {
+        csvContent += Object.values(data).join(",") + "\n";
+      });
+      var encodedUri = encodeURI(csvContent);
+      var link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "form-data.csv");
+      document.body.appendChild(link);
+      link.click();
+    });
+	
+    function displayData() {
+      //var data = [];
+	  var data = localStorage.getItem("formDataArray");
+	  /*console.log(data);
+      for (var i = 0; i < localStorage.length; i++) {
+        var key = localStorage.key(i);
+        var value = localStorage.getItem(key);
+		console.log(key+" "+value);
+        data.push({ [key]: value });
+      }*/
+    
+      var dataWindow = window.open("", "Data Window", "width=300, height=300");
+      dataWindow.document.write("<table border='1'>");
+      dataWindow.document.write("<tr><th>Name</th><th>Address</th><th>RollNo</th><th>Department</th></tr>");
+      allData.forEach(function (item) {
+        var name = item["name"];
+        var address = item["address"];
+        var rollNo = item["rollNo"];
+        var department = item["department"]
+        dataWindow.document.write("<tr><td>" + name + "</td><td>" + address + "</td><td>" + rollNo + "</td><td>" + department + "</td></tr>");
+      });
+      dataWindow.document.write("</table>");
+    }
+  </script>
+</body>
+</html>
